@@ -1,15 +1,91 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.IO;
+using System.IO.Compression;
+using System.Net;
 using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
+using System.Web;
+using System.Xml;
 
-namespace LeadAndCycle
+namespace CodeEvaler
 {
-    class Program
+    public static class Program
     {
-        static void Main(string[] args)
+        public static void Main()
         {
+            (new CodeEvaler()).Eval();
         }
+    }
+
+    public class CodeEvaler
+    {
+        public void Eval()
+        {
+            MakeRequests();
+        }
+        private void MakeRequests()
+        {
+            HttpWebResponse response;
+            string responseText;
+
+            if (Request_privatepreview_visualstudio_com(out response))
+            {
+                responseText = ReadResponse(response);
+
+                response.Close();
+            }
+        }
+
+        private static string ReadResponse(HttpWebResponse response)
+        {
+            using (Stream responseStream = response.GetResponseStream())
+            {
+                Stream streamToRead = responseStream;
+                if (response.ContentEncoding.ToLower().Contains("gzip"))
+                {
+                    streamToRead = new GZipStream(streamToRead, CompressionMode.Decompress);
+                }
+                else if (response.ContentEncoding.ToLower().Contains("deflate"))
+                {
+                    streamToRead = new DeflateStream(streamToRead, CompressionMode.Decompress);
+                }
+
+                using (StreamReader streamReader = new StreamReader(streamToRead, Encoding.UTF8))
+                {
+                    return streamReader.ReadToEnd();
+                }
+            }
+        }
+
+        private bool Request_privatepreview_visualstudio_com(out HttpWebResponse response)
+        {
+            response = null;
+
+            try
+            {
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://privatepreview.visualstudio.com/DefaultCollection/0e3ce5b3-30a5-495c-bf8e-85cda5a72462/_apis/wit/wiql/9a100a9e-5e61-4afd-acd4-4c9150d7c3c5");
+
+                request.UserAgent = "Fiddler";
+                request.Headers.Set(HttpRequestHeader.Authorization, "Basic c2dsaWRld2VsbEBjb25uZWN0aW9uc2VkdWNhdGlvbi5jb206cmlvczV3aTZ5NjJidWhpN2Y3dmZqeDZoeWRheXZtdnQyZW9ha2tkeWY2ZGNkdXU2bWwycQ==");
+
+                response = (HttpWebResponse)request.GetResponse();
+            }
+            catch (WebException e)
+            {
+                if (e.Status == WebExceptionStatus.ProtocolError) response = (HttpWebResponse)e.Response;
+                else return false;
+            }
+            catch (Exception)
+            {
+                if (response != null) response.Close();
+                return false;
+            }
+
+            return true;
+        }
+
     }
 }
