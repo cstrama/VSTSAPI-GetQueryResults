@@ -52,6 +52,7 @@ namespace CodeEvaler
         {
             HttpWebResponse response;
             string responseText;
+            string detailsText;
 
             if (Request_privatepreview_visualstudio_com(out response))
             {
@@ -59,8 +60,9 @@ namespace CodeEvaler
                 var results = Newtonsoft.Json.JsonConvert.DeserializeObject<Rootobject>(responseText);
                 foreach (var item in results.workItems)
                 {
-                    Console.WriteLine(item.id);
-                }
+                    int wid = item.id;
+                    Console.WriteLine(wid);
+                    //insert into Postgres
                 response.Close();
             }
         }
