@@ -52,7 +52,6 @@ namespace CodeEvaler
         {
             HttpWebResponse response;
             string responseText;
-            string detailsText;
 
             if (Request_privatepreview_visualstudio_com(out response))
             {
@@ -62,8 +61,8 @@ namespace CodeEvaler
                 {
                     int wid = item.id;
                     Console.WriteLine(wid);
-                    //insert into Postgres
-                response.Close();
+                    response.Close();
+                }
             }
         }
         
@@ -114,6 +113,5 @@ namespace CodeEvaler
 
             return true;
         }
-
     }
 }
