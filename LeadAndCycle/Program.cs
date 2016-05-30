@@ -56,7 +56,7 @@ namespace CodeEvaler
             if (Request_privatepreview_visualstudio_com(out response))
             {
                 responseText = ReadResponse(response);
-
+                var results = Newtonsoft.Json.JsonConvert.DeserializeObject<Rootobject>(responseText);
                 response.Close();
             }
         }
