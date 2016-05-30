@@ -57,10 +57,14 @@ namespace CodeEvaler
             {
                 responseText = ReadResponse(response);
                 var results = Newtonsoft.Json.JsonConvert.DeserializeObject<Rootobject>(responseText);
+                foreach (var item in results.workItems)
+                {
+                    Console.WriteLine(item.id);
+                }
                 response.Close();
             }
         }
-
+        
         private static string ReadResponse(HttpWebResponse response)
         {
             using (Stream responseStream = response.GetResponseStream())
