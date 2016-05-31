@@ -9,9 +9,12 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
 using System.Xml;
+using Npgsql;
+using System.Collections.Generic;
 
 namespace CodeEvaler
 {
+
     public class Rootobject
     {
         public string queryType { get; set; }
@@ -52,6 +55,7 @@ namespace CodeEvaler
         {
             HttpWebResponse response;
             string responseText;
+            List<string> wiList = new List<string>() { };
 
             if (Request_privatepreview_visualstudio_com(out response))
             {
@@ -59,10 +63,18 @@ namespace CodeEvaler
                 var results = Newtonsoft.Json.JsonConvert.DeserializeObject<Rootobject>(responseText);
                 foreach (var item in results.workItems)
                 {
-                    int wid = item.id;
-                    Console.WriteLine(wid);
+                    string wid = item.id.ToString();
+                    //Console.WriteLine(wid);
+                    //insert into PostgreSQL AWS database, table = "workitems", @id - work item ID
+
+                    wiList.Add(wid);
                     response.Close();
                 }
+                //wiList.ForEach(Console.WriteLine);
+                string wiListConcat = string.Join(",", wiList);
+                //Console.WriteLine(wiListConcat);
+                string wiDetails = "https://privatepreview.visualstudio.com/DefaultCollection/_apis/wit/workitems?ids=" + wiListConcat.ToString() + "&api-version=1.0";
+                Console.Write(wiDetails);
             }
         }
         
