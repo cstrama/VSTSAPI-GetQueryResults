@@ -64,15 +64,10 @@ namespace CodeEvaler
                 foreach (var item in results.workItems)
                 {
                     string wid = item.id.ToString();
-                    //Console.WriteLine(wid);
-                    //insert into PostgreSQL AWS database, table = "workitems", @id - work item ID
-
                     wiList.Add(wid);
                     response.Close();
                 }
-                //wiList.ForEach(Console.WriteLine);
                 string wiListConcat = string.Join(",", wiList);
-                //Console.WriteLine(wiListConcat);
                 string wiDetails = "https://privatepreview.visualstudio.com/DefaultCollection/_apis/wit/workitems?ids=" + wiListConcat.ToString() + "&api-version=1.0";
                 Console.Write(wiDetails);
             }
