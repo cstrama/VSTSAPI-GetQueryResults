@@ -141,8 +141,7 @@ namespace CodeEvaler
 
                     responseText = ReadResponse(response);
                     var wiResults = Newtonsoft.Json.JsonConvert.DeserializeObject<Rootobject2>(responseText);
-                    Console.WriteLine(responseText.ToString());
-                //insert work items and details into database or other consumable form for Power BI
+                    System.IO.File.WriteAllText(@"C:\Reports\Json\workitems.json", responseText);
             }
         }
 
