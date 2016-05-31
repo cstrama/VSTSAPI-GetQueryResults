@@ -127,7 +127,7 @@ namespace CodeEvaler
                     }
 
                 string wiListConcat = string.Join(",", wiList);
-                string wiDetails = "https://privatepreview.visualstudio.com/DefaultCollection/_apis/wit/workitems?ids=" + wiListConcat.ToString() + "&api-version=1.0";
+                string wiDetails = "https://privatepreview.visualstudio.com/DefaultCollection/_apis/wit/workitems?ids=" + wiListConcat.ToString() + "&fields=System.Id,System.Title,System.State,Microsoft.VSTS.Scheduling.StoryPoints,System.CreatedDate,Microsoft.VSTS.Scheduling.StartDate,Microsoft.VSTS.Common.ClosedDate&api-version=1.0";
 
                     //breakout into work item details
                     response = null;
