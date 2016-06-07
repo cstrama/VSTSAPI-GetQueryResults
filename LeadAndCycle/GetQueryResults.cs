@@ -11,6 +11,7 @@ using System.Web;
 using System.Xml;
 using Npgsql;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace CodeEvaler
 {
@@ -28,18 +29,24 @@ namespace CodeEvaler
         public string url { get; set; }
     }
 
+
     public class Fields
     {
+        [JsonProperty("System.Id")]
+        public int SystemId { get; set; }
+        [JsonProperty("System.State")]
+        public string SystemState { get; set; }
         public string SystemAreaPath { get; set; }
         public string SystemTeamProject { get; set; }
         public string SystemIterationPath { get; set; }
         public string SystemWorkItemType { get; set; }
-        public string SystemState { get; set; }
         public string SystemReason { get; set; }
+        [JsonProperty("System.CreatedDate")]
         public DateTime SystemCreatedDate { get; set; }
         public string SystemCreatedBy { get; set; }
         public DateTime SystemChangedDate { get; set; }
         public string SystemChangedBy { get; set; }
+        [JsonProperty("System.Title")]
         public string SystemTitle { get; set; }
         public string SystemBoardColumn { get; set; }
         public bool SystemBoardColumnDone { get; set; }
@@ -129,19 +136,52 @@ namespace CodeEvaler
                 string wiListConcat = string.Join(",", wiList);
                 string wiDetails = "https://privatepreview.visualstudio.com/DefaultCollection/_apis/wit/workitems?ids=" + wiListConcat.ToString() + "&fields=System.Id,System.Title,System.State,Microsoft.VSTS.Scheduling.StoryPoints,System.CreatedDate,Microsoft.VSTS.Scheduling.StartDate,Microsoft.VSTS.Common.ClosedDate&api-version=1.0";
 
-                    //breakout into work item details
-                    response = null;
+                //breakout into work item details
+                response = null;
 
-                    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(wiDetails);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(wiDetails);
 
-                    request.UserAgent = "Fiddler";
-                    request.Headers.Set(HttpRequestHeader.Authorization, "Basic c2dsaWRld2VsbEBjb25uZWN0aW9uc2VkdWNhdGlvbi5jb206cmlvczV3aTZ5NjJidWhpN2Y3dmZqeDZoeWRheXZtdnQyZW9ha2tkeWY2ZGNkdXU2bWwycQ==");
+                request.UserAgent = "Fiddler";
+                request.Headers.Set(HttpRequestHeader.Authorization, "Basic c2dsaWRld2VsbEBjb25uZWN0aW9uc2VkdWNhdGlvbi5jb206cmlvczV3aTZ5NjJidWhpN2Y3dmZqeDZoeWRheXZtdnQyZW9ha2tkeWY2ZGNkdXU2bWwycQ==");
 
-                    response = (HttpWebResponse)request.GetResponse();
+                response = (HttpWebResponse)request.GetResponse();
 
-                    responseText = ReadResponse(response);
-                    var wiResults = Newtonsoft.Json.JsonConvert.DeserializeObject<Rootobject2>(responseText);
-                    System.IO.File.WriteAllText(@"C:\Reports\Json\workitems.json", responseText);
+                responseText = ReadResponse(response);
+                var wiResults = Newtonsoft.Json.JsonConvert.DeserializeObject<Rootobject2>(responseText);
+                StringBuilder output = new StringBuilder();
+                StringBuilder csv = new StringBuilder();
+                bool first = true;
+                output.Append("{[");
+                csv.Append("SystemId,SystemTitle,SystemCreatedDate,SystemState");
+                csv.Append(Environment.NewLine);
+                foreach (var value in wiResults.value) {
+                    if (first) {
+                        first = false;
+                    }
+                    else {
+                        output.Append(",");
+                    }
+                    output.Append("{\"SystemId\":\"");
+                    output.Append(value.fields.SystemId);
+                    output.Append("\",\"SystemTitle\":\"");
+                    output.Append(value.fields.SystemTitle);
+                    output.Append("\",\"SystemCreatedDate\":\"");
+                    output.Append(value.fields.SystemCreatedDate);
+                    output.Append("\",\"SystemState\":\"");
+                    output.Append(value.fields.SystemState);
+                    output.Append("\"}");
+                    csv.Append(value.fields.SystemId);
+                    csv.Append(",");
+                    csv.Append(value.fields.SystemTitle);
+                    csv.Append(",");
+                    csv.Append(value.fields.SystemCreatedDate);
+                    csv.Append(",");
+                    csv.Append(value.fields.SystemState);
+                    csv.Append(Environment.NewLine);
+                }
+                output.Append("]}");
+                System.IO.File.WriteAllText(@"C:\Reports\Json\workitems2.json", output.ToString());
+                System.IO.File.WriteAllText(@"C:\Reports\Json\workitems2.csv", csv.ToString());
             }
         }
 
